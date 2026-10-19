@@ -1,64 +1,66 @@
-using TE.DomainStorytellingApplied.Domain.Timeslots;
-
 namespace TE.DomainStorytellingApplied.Domain.Tests.Timeslots;
+
+using TE.DomainStorytellingApplied.Domain.Timeslots;
 
 public class TimeslotTests
 {
-    private static readonly Guid PremisesId = Guid.NewGuid();
+    private static readonly DateTimeOffset Start = new(2026, 11, 2, 9, 0, 0, TimeSpan.Zero);
 
     [Fact]
-    public void GivenEndTimeBeforeStartTime_WhenCreatingTimeslot_ShouldThrow()
+    public void GivenStartBeforeEnd_WhenCreatingTimeslot_ShouldExposeStartAndEnd()
     {
-        var startTime = new DateTime(2026, 10, 9, 12, 0, 0);
-        var endTime = new DateTime(2026, 10, 9, 10, 0, 0);
+        var end = Start.AddHours(2);
 
-        Should.Throw<ArgumentException>(() => new Timeslot(PremisesId, startTime, endTime));
+        var timeslot = new Timeslot(Start, end);
+
+        timeslot.Start.ShouldBe(Start);
+        timeslot.End.ShouldBe(end);
     }
 
     [Fact]
-    public void GivenStartTimeBeforeEndTime_WhenCreatingTimeslot_ShouldSucceed()
+    public void GivenStartBeforeEnd_WhenReadingDuration_ShouldBeEndMinusStart()
     {
-        var startTime = new DateTime(2026, 10, 9, 10, 0, 0);
-        var endTime = new DateTime(2026, 10, 9, 12, 0, 0);
+        var timeslot = new Timeslot(Start, Start.AddMinutes(90));
 
-        var timeslot = new Timeslot(PremisesId, startTime, endTime);
-
-        timeslot.PremisesId.ShouldBe(PremisesId);
-        timeslot.StartTime.ShouldBe(startTime);
-        timeslot.EndTime.ShouldBe(endTime);
-        timeslot.Id.ShouldNotBe(Guid.Empty);
+        timeslot.Duration.ShouldBe(TimeSpan.FromMinutes(90));
     }
 
     [Fact]
-    public void GivenStartTimeEqualToEndTime_WhenCreatingTimeslot_ShouldThrow()
+    public void GivenEndEqualToStart_WhenCreatingTimeslot_ShouldThrowInvalidTimeslotException()
     {
-        var time = new DateTime(2026, 10, 9, 10, 0, 0);
-
-        Should.Throw<ArgumentException>(() => new Timeslot(PremisesId, time, time));
+        Should.Throw<InvalidTimeslotException>(() => new Timeslot(Start, Start));
     }
 
     [Fact]
-    public void GivenEmptyPremisesId_WhenCreatingTimeslot_ShouldThrow()
+    public void GivenEndBeforeStart_WhenCreatingTimeslot_ShouldThrowInvalidTimeslotException()
     {
-        var startTime = new DateTime(2026, 10, 9, 10, 0, 0);
-        var endTime = new DateTime(2026, 10, 9, 12, 0, 0);
-
-        Should.Throw<ArgumentException>(() => new Timeslot(Guid.Empty, startTime, endTime));
+        Should.Throw<InvalidTimeslotException>(() => new Timeslot(Start, Start.AddMinutes(-1)));
     }
 
     [Fact]
-    public void GivenEmptyStartTime_WhenCreatingTimeslot_ShouldThrow()
+    public void GivenInvalidTimeslot_WhenCreatingTimeslot_ShouldThrowDomainException()
     {
-        var endTime = new DateTime(2026, 10, 9, 12, 0, 0);
+        var exception = Should.Throw<InvalidTimeslotException>(() => new Timeslot(Start, Start));
 
-        Should.Throw<ArgumentException>(() => new Timeslot(PremisesId, default, endTime));
+        exception.ShouldBeAssignableTo<DomainException>();
+        exception.Message.ShouldNotBeNullOrWhiteSpace();
     }
 
     [Fact]
-    public void GivenEmptyEndTime_WhenCreatingTimeslot_ShouldThrow()
+    public void GivenTwoTimeslotsWithSameStartAndEnd_WhenComparing_ShouldBeEqual()
     {
-        var startTime = new DateTime(2026, 10, 9, 10, 0, 0);
+        var first = new Timeslot(Start, Start.AddHours(1));
+        var second = new Timeslot(Start, Start.AddHours(1));
 
-        Should.Throw<ArgumentException>(() => new Timeslot(PremisesId, startTime, default));
+        first.ShouldBe(second);
+    }
+
+    [Fact]
+    public void GivenTwoTimeslotsWithDifferentEnd_WhenComparing_ShouldNotBeEqual()
+    {
+        var first = new Timeslot(Start, Start.AddHours(1));
+        var second = new Timeslot(Start, Start.AddHours(2));
+
+        first.ShouldNotBe(second);
     }
 }

@@ -1,17 +1,24 @@
-using TE.DomainStorytellingApplied.Domain.Common;
-
 namespace TE.DomainStorytellingApplied.Domain.Premises;
 
-public class Premise
+// Domain value object
+public sealed record Premise
 {
-    public Guid Id { get; private init; }
-    public string Name { get; private init; }
+    public Guid Id { get; }
+    public string Name { get; }
 
-    public Premise(string name)
+    public Premise(Guid id, string name)
     {
-        Guard.EnsureNotEmpty(name);
+        if (id == Guid.Empty)
+        {
+            throw InvalidPremiseException.EmptyId();
+        }
 
-        Id = Guid.NewGuid();
-        Name = name;
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw InvalidPremiseException.BlankName();
+        }
+
+        Id = id;
+        Name = name.Trim();
     }
 }

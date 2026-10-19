@@ -1,28 +1,20 @@
-using TE.DomainStorytellingApplied.Domain.Common;
-
 namespace TE.DomainStorytellingApplied.Domain.Timeslots;
 
-public class Timeslot
+// Domain value object
+public sealed record Timeslot
 {
-    public Guid Id { get; private init; }
-    public Guid PremisesId { get; private init; }
-    public DateTime StartTime { get; private init; }
-    public DateTime EndTime { get; private init; }
+    public DateTimeOffset Start { get; }
+    public DateTimeOffset End { get; }
+    public TimeSpan Duration => End - Start;
 
-    public Timeslot(Guid premisesId, DateTime startTime, DateTime endTime)
+    public Timeslot(DateTimeOffset start, DateTimeOffset end)
     {
-        Guard.EnsureNotEmpty(premisesId);
-        Guard.EnsureNotEmpty(startTime);
-        Guard.EnsureNotEmpty(endTime);
-
-        if (endTime <= startTime)
+        if (end <= start)
         {
-            throw new ArgumentException("A timeslot must end after it starts.", nameof(endTime));
+            throw InvalidTimeslotException.EndMustBeAfterStart(start, end);
         }
 
-        Id = Guid.NewGuid();
-        PremisesId = premisesId;
-        StartTime = startTime;
-        EndTime = endTime;
+        Start = start;
+        End = end;
     }
 }
