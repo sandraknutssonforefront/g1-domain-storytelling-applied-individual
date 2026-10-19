@@ -26,15 +26,24 @@ public class TimeslotTests
     }
 
     [Fact]
-    public void GivenEndEqualToStart_WhenCreatingTimeslot_ShouldThrow()
+    public void GivenEndEqualToStart_WhenCreatingTimeslot_ShouldThrowInvalidTimeslotException()
     {
-        Should.Throw<ArgumentException>(() => new Timeslot(Start, Start));
+        Should.Throw<InvalidTimeslotException>(() => new Timeslot(Start, Start));
     }
 
     [Fact]
-    public void GivenEndBeforeStart_WhenCreatingTimeslot_ShouldThrow()
+    public void GivenEndBeforeStart_WhenCreatingTimeslot_ShouldThrowInvalidTimeslotException()
     {
-        Should.Throw<ArgumentException>(() => new Timeslot(Start, Start.AddMinutes(-1)));
+        Should.Throw<InvalidTimeslotException>(() => new Timeslot(Start, Start.AddMinutes(-1)));
+    }
+
+    [Fact]
+    public void GivenInvalidTimeslot_WhenCreatingTimeslot_ShouldThrowDomainException()
+    {
+        var exception = Should.Throw<InvalidTimeslotException>(() => new Timeslot(Start, Start));
+
+        exception.ShouldBeAssignableTo<DomainException>();
+        exception.Message.ShouldNotBeNullOrWhiteSpace();
     }
 
     [Fact]

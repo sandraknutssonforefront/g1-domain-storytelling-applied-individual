@@ -1,5 +1,6 @@
 namespace TE.DomainStorytellingApplied.Domain.Timeslots;
 
+// Domain value object
 public sealed record Timeslot
 {
     public DateTimeOffset Start { get; }
@@ -10,7 +11,7 @@ public sealed record Timeslot
     {
         if (end <= start)
         {
-            throw new ArgumentException("Timeslot must end after it starts.", nameof(end));
+            throw InvalidTimeslotException.EndMustBeAfterStart(start, end);
         }
 
         Start = start;

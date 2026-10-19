@@ -11,12 +11,12 @@ public class ReservationStatusTests
     }
 
     [Fact]
-    public void GivenStoryOutcomes_WhenListingStatuses_ShouldContainExactlyRequestedUnderReviewApprovedRejected()
+    public void GivenStoryOutcomes_WhenListingStatuses_ShouldContainExactlyRequestedPendingReviewApprovedRejected()
     {
         Enum.GetValues<ReservationStatus>().ShouldBe(
             [
                 ReservationStatus.Requested,
-                ReservationStatus.UnderReview,
+                ReservationStatus.PendingReview,
                 ReservationStatus.Approved,
                 ReservationStatus.Rejected,
             ],

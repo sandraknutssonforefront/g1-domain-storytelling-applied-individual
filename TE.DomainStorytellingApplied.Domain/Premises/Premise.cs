@@ -1,5 +1,6 @@
 namespace TE.DomainStorytellingApplied.Domain.Premises;
 
+// Domain value object
 public sealed record Premise
 {
     public Guid Id { get; }
@@ -9,10 +10,13 @@ public sealed record Premise
     {
         if (id == Guid.Empty)
         {
-            throw new ArgumentException("Premise id must not be empty.", nameof(id));
+            throw InvalidPremiseException.EmptyId();
         }
 
-        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            throw InvalidPremiseException.BlankName();
+        }
 
         Id = id;
         Name = name.Trim();

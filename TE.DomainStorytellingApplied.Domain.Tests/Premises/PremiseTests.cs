@@ -26,21 +26,30 @@ public class PremiseTests
     [Theory]
     [InlineData("")]
     [InlineData("   ")]
-    public void GivenBlankName_WhenCreatingPremise_ShouldThrow(string name)
+    public void GivenBlankName_WhenCreatingPremise_ShouldThrowInvalidPremiseException(string name)
     {
-        Should.Throw<ArgumentException>(() => new Premise(SomeId, name));
+        Should.Throw<InvalidPremiseException>(() => new Premise(SomeId, name));
     }
 
     [Fact]
-    public void GivenNullName_WhenCreatingPremise_ShouldThrow()
+    public void GivenNullName_WhenCreatingPremise_ShouldThrowInvalidPremiseException()
     {
-        Should.Throw<ArgumentException>(() => new Premise(SomeId, null!));
+        Should.Throw<InvalidPremiseException>(() => new Premise(SomeId, null!));
     }
 
     [Fact]
-    public void GivenEmptyId_WhenCreatingPremise_ShouldThrow()
+    public void GivenEmptyId_WhenCreatingPremise_ShouldThrowInvalidPremiseException()
     {
-        Should.Throw<ArgumentException>(() => new Premise(Guid.Empty, "Conference Room A"));
+        Should.Throw<InvalidPremiseException>(() => new Premise(Guid.Empty, "Conference Room A"));
+    }
+
+    [Fact]
+    public void GivenInvalidPremise_WhenCreatingPremise_ShouldThrowDomainException()
+    {
+        var exception = Should.Throw<InvalidPremiseException>(() => new Premise(Guid.Empty, "Conference Room A"));
+
+        exception.ShouldBeAssignableTo<DomainException>();
+        exception.Message.ShouldNotBeNullOrWhiteSpace();
     }
 
     [Fact]
